@@ -18,7 +18,7 @@ module.exports = NodeHelper.create({
 
     activateMonitor: function () {
         // If always-off is enabled, keep monitor deactivated
-        let alwaysOffTrigger = this.alwaysOff && (this.alwaysOff.readSync() === this.config.alwaysOffState)
+        let alwaysOffTrigger = this.alwaysOff && (this.alwaysOff.readSync() === this.config.alwaysOffState);
         if (alwaysOffTrigger) {
             return;
         }
@@ -33,12 +33,13 @@ module.exports = NodeHelper.create({
                     exec("/usr/bin/vcgencmd display_power 1", null);
             });
         }
+        self.sendSocketNotification('POWER_SAVING', false);
     },
 
     deactivateMonitor: function () {
         // If always-on is enabled, keep monitor activated
-        let alwaysOnTrigger = this.alwaysOn && (this.alwaysOn.readSync() === this.config.alwaysOnState)
-        let alwaysOffTrigger = this.alwaysOff && (this.alwaysOff.readSync() === this.config.alwaysOffState)
+        let alwaysOnTrigger = this.alwaysOn && (this.alwaysOn.readSync() === this.config.alwaysOnState);
+        let alwaysOffTrigger = this.alwaysOff && (this.alwaysOff.readSync() === this.config.alwaysOffState);
         if (alwaysOnTrigger && !alwaysOffTrigger) {
             return;
         }
@@ -49,6 +50,7 @@ module.exports = NodeHelper.create({
         else if (this.config.relayPin === false) {
             exec("/usr/bin/vcgencmd display_power 0", null);
         }
+        self.sendSocketNotification('POWER_SAVING', true);
     },
 
     // Subclass socketNotificationReceived received.
@@ -67,7 +69,7 @@ module.exports = NodeHelper.create({
             // Setup for alwaysOn switch
             if (this.config.alwaysOnPin) {
                 this.alwaysOn = new Gpio(this.config.alwaysOnPin, 'in', 'both');
-                const alwaysOnState = this.config.alwaysOnState
+                const alwaysOnState = this.config.alwaysOnState;
                 this.alwaysOn.watch(function (err, value) {
                     if (value === alwaysOnState) {
                         self.sendSocketNotification('ALWAYS_ON', true);
@@ -93,7 +95,7 @@ module.exports = NodeHelper.create({
             // Setup for alwaysOff switch
             if (this.config.alwaysOffPin) {
                 this.alwaysOff = new Gpio(this.config.alwaysOffPin, 'in', 'both');
-                const alwaysOffState = this.config.alwaysOffState
+                const alwaysOffState = this.config.alwaysOffState;
                 this.alwaysOff.watch(function (err, value) {
                     if (value === alwaysOffState) {
                         self.sendSocketNotification('ALWAYS_OFF', true);
